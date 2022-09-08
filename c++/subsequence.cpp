@@ -16,11 +16,10 @@ void subsequence(vector<int> v, int i, int n,vector<int> out){
     subsequence(v,i+1,n,out);
     out.erase(out.begin()+out.size()-1);
     subsequence(v, i+1, n, out);
-
 }
 
 int main(){
-    vector<int> v = {3,2,1};
+    vector<int> v = {1,2,3,4};
     vector<int> out;
     subsequence(v,0,v.size(),out);
     return 0;

@@ -16,8 +16,7 @@ public:
 };
 
 
-LinkedListNode<int>* removeKthNode(LinkedListNode<int> *head, int K)
-{
+LinkedListNode<int>* removeKthNode(LinkedListNode<int> *head, int K){
     // Write your code here.
     LinkedListNode<int> *start=new LinkedListNode<int>(100);
     //cout<<"check1"<<endl;
