@@ -12,6 +12,14 @@ void printvector(vector<int> &v){
 }
 
 //recursion
+
+int min_energy(vector<int> &values, int n){
+    if(n==0) return 0;
+    int two = INT_MAX;
+    if(n>1) two = min_energy(values, n-2) + abs(values.at(n) - values.at(n-2));
+    return min(min_energy(values,n-1) + abs(values.at(n) - values.at(n-1)), two );
+}
+
 int minenergy(int index, vector<int> &v){
     if(index ==0){
         return 0;
@@ -41,6 +49,14 @@ int minenergy(int index, vector<int> &v,vector<int> &dp){
     return left;
 }
 
+int min_energy(vector<int> &values, int n , vector<int> &dp){
+    if(n==0) return 0;
+    else if(dp.at(n)!=-1)  return dp.at(n);
+    int two = INT_MAX;
+    if(n>1) two = min_energy(values, n-2, dp) + abs(values.at(n) - values.at(n-2));
+    return dp.at(n) =  min(min_energy(values,n-1, dp) + abs(values.at(n) - values.at(n-1)), two );
+}
+
 
 //tabulation
 int minenergy(vector<int> &v){
@@ -52,6 +68,14 @@ int minenergy(vector<int> &v){
         if(i>1) ss = dp.at(i-2)+ abs(v.at(i)-v.at(i-2));
         dp.at(i)=min(fs,ss);
     }
+    return dp.at(n-1);
+}
+
+int min_energy_table(vector<int> &values, int n){ //n actual length
+    vector<int> dp(n,-1);
+    dp.at(0)=0;
+    dp.at(1)= abs(values.at(0) - values.at(1));
+    for(int i=2; i<n; i++) dp.at(i) = min(dp.at(i-1)+ abs(values.at(i) - values.at(i-1)), dp.at(i-2) + abs(values.at(i) - values.at(i-2)));
     return dp.at(n-1);
 }
 
@@ -73,11 +97,18 @@ int minenergy2(vector<int> &v){
 
 
 int main(){
-    vector<int> v{30,10,60,10,60,50};
-    vector<int> dp(v.size(),-1);
+    freopen("input.txt","r",stdin);
+    freopen("output.txt","w",stdout);
+    int n;
+    cin>>n;
+    vector<int> v(n);
+    for(int i=0; i<n; i++){
+        cin>>v.at(i);
+    }
+    vector<int> dp(n,-1);
     dp.at(0)=0;
-    cout<<minenergy(v.size()-1,v,dp)<<endl;
-    cout<<minenergy(v.size()-1,v)<<endl;
+    cout<<minenergy(n-1,v,dp)<<endl;
+    cout<<minenergy(n-1,v)<<endl;
     cout<<minenergy(v)<<endl;
     cout<<minenergy2(v)<<endl;
 }

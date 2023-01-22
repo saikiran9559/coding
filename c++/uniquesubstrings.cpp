@@ -45,7 +45,7 @@ int uniqueSubstrings(string s){
         right++;
       }
       return len;
-    }
+}
 
 
 int main(){
@@ -58,6 +58,6 @@ int main(){
         cout<<"Not found"<<endl;
     }
     */
-    cout<<uniqueSubstrings("ababcdede");
+    cout<<uniqueSubstrings("baninao");
     return 0;
 }

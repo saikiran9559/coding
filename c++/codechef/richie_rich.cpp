@@ -1,0 +1,24 @@
+
+#include<vector>
+#include<climits>
+#include<string>
+#include <iostream>
+using namespace std;
+
+int solve(){
+    
+}
+
+int main() {
+    int t;
+    cin>>t;
+    while(t--){
+        int a,b,x;
+        cin>>a>>b>>x;
+        cout<<(b-a)/x<<endl;
+    }
+	return 0;
+}
+
+
+

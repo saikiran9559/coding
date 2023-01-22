@@ -1,7 +1,10 @@
-#include <bits/stdc++.h>
+//#include <bits/stdc++.h>
 #include <iostream>
 #include <utility>
-#include <unordered_map>
+#include<map>
+#include<vector>
+
+//#include <unordered_map>
 // #include <string>
 using namespace std;
 
@@ -49,7 +52,16 @@ int main()
     for(auto i:v) cout<<i<<" ";
 */
     //cout<<climbStairs(2)<<endl;
-    int a = 9;
-    cout<<a/2;
+    map<int,int> mymap;
+    mymap.insert({30,2});
+    mymap.insert({25,4});
+    mymap.insert({31,8});
+    mymap[25]=8;
+    mymap.insert({25,9});
+    mymap[9]=99;
+    map<int,int> :: reverse_iterator i;
+    for( i=mymap.rbegin(); i!=mymap.rend(); i++){
+        cout<<i->first<<","<<i->second<<endl;
+    }
 }
  
