@@ -1,94 +1,105 @@
-// min path in triagle 2d array
-// top row to any cell in bottom row
-
 #include<bits/stdc++.h>
 using namespace std;
 
-void printvector(vector<int> &v){
-    cout<<"\t{";
-    for(auto i:v)cout<<i<<",";
-    cout<<"},"<<endl;
-}
-void print2D(vector<vector<int>> &v){
-    cout<<"{"<<endl;
-    for(auto i:v) printvector(i);
-    cout<<"}"<<endl;
+int minimum(int a, int b, int c){
+    if(a<b and a<c) return a;
+    if(b<a and b<c) return b;
+    else return c;
 }
 
-// recursion
-int minpath(vector<vector<int>> &grid, int n, int m){
-    if(m<0) return INT_MAX;
-    if(m>n) return INT_MAX;
-    if(n==0 and m==0) return grid.at(n).at(m);
-    return grid.at(n).at(m) + min( minpath(grid, n-1, m-1), minpath(grid,n-1,m));
+//recursion
+int min_path_tri(int n, int m, vector<vector<int>> &grid){
+    if(n==0 and m==0) return grid.at(0).at(0);
+    if(m<0 or m>n) return INT_MAX;
+    return grid.at(n).at(m) + minimum( min_path_tri(n-1,m-1,grid), min_path_tri(n-1,m,grid), min_path_tri(n-1,m+1,grid));
 }
 
-// recursion with dp
-int minpath(vector<vector<int>> &grid, int n, int m, vector<vector<int>> &dp){
-    if(m<0) return INT_MAX;
-    if(m>n) return INT_MAX;
-    if(dp.at(n).at(m) != INT_MAX) return dp.at(n).at(m);
-    return dp.at(n).at(m) = grid.at(n).at(m) + min( minpath(grid, n-1, m-1, dp), minpath(grid,n-1, m, dp));
+//memorization
+int min_path_tri(int n, int m, vector<vector<int>> &grid, vector<vector<int>> &dp){
+    if(n==0 and m==0) return grid.at(0).at(0);
+    if(m<0 or m>n) return INT_MAX;
+    if(dp.at(n).at(m) != -1) return dp.at(n).at(m);
+    return dp.at(n).at(m) = grid.at(n).at(m) + minimum(min_path_tri(n-1,m-1,grid,dp), min_path_tri(n-1,m,grid,dp), min_path_tri(n-1,m+1,grid,dp));
 }
 
-// tabulation
-int minpath(vector<vector<int>> &grid){
-    int n = grid.size();
-    vector<vector<int>> dp(n,vector<int>(n,INT_MAX));
+//tabulation
+int min_path_tri_tab(int n, vector<vector<int>> &grid){
+    vector<vector<int>> dp(n,vector<int>(n,-1));
     dp.at(0).at(0) = grid.at(0).at(0);
-    for(int i=1; i<n; i++){
-        dp.at(i).at(0) = grid.at(i).at(0) + dp.at(i-1).at(0);
-        for(int j=1; j<i; j++){
-            dp.at(i).at(j) = grid.at(i).at(j) + min( dp.at(i-1).at(j), dp.at(i-1).at(j-1));
+    int mini = INT_MAX;
+    for(int  i=1; i<n; i++){
+        for(int j=0; j<=i; j++){
+            int one = INT_MAX, two = INT_MAX, three = INT_MAX;
+            if(j>0) one = dp.at(i-1).at(j-1);
+            if(j!=i) two = dp.at(i-1).at(j);
+            if(j<i-1) three = dp.at(i-1).at(j+1);
+            dp.at(i).at(j) = grid.at(i).at(j) + minimum(one,two,three);
+            if(i==n-1) mini = min(mini, dp.at(i).at(j));
         }
-        dp.at(i).at(i) = grid.at(i).at(i) + dp.at(i-1).at(i-1);
     }
-    int maxi = INT_MAX;
-    for(int i=0; i<n; i++) maxi = min( maxi, dp.at(n-1).at(i));
-    return maxi;
+    return mini;
 }
 
-int minpath2(vector<vector<int>> &grid){
-    int n = grid.size();
-    vector<int> prev(1,grid.at(0).at(0));
+//space optimization
+int  min_path_tri_space(int n, vector<vector<int>> &grid){
+    vector<int> prev(n,-1);
+    prev.at(0) = grid.at(0).at(0);
+    int mini = INT_MAX;
     for(int i=1; i<n; i++){
-        vector<int> temp;
-        temp.push_back(grid.at(i).at(0) + prev.at(0));
-        for(int j=1; j<i; j++){
-            temp.push_back( grid.at(i).at(j) + min( prev.at(j), prev.at(j-1)));
+        vector<int> cur(n);
+        for(int j=0; j<=i; j++){
+            int one = INT_MAX, two = INT_MAX, three = INT_MAX;
+            if(j>0) one = prev.at(j-1);
+            if(j!=i) two = prev.at(j);
+            if(j<i-1) three = prev.at(j+1);
+            cur.at(j) = grid.at(i).at(j) + minimum(one, two, three);
+            if(i==n-1) mini = min(mini, cur.at(j));
         }
-        temp.push_back( grid.at(i).at(i) + prev.at(i-1));
-        prev = temp;
+        prev = cur;
     }
-    int maxi = INT_MAX;
-    for(int i=0; i<n; i++) maxi = min( maxi, prev.at(i));
-    return maxi;
+    return mini;
 }
+
 
 int main(){
-    vector<vector<int>> grid{
-        {1},
-        {2,3},
-        {4,5,6},
-        {7,8,9,10},
-    };
-    /*
-    vector<vector<int>> grid{
-        {5},
-        {-1,3},
-        {22,1,-9},
-    };
-    */
-    int n = grid.size();
-    int mini = INT_MAX;
-    vector<vector<int>> dp(n,vector<int>(n,INT_MAX));
-    dp.at(0).at(0) = grid.at(0).at(0);
-    print2D(grid);
-    for(int i=0; i<n; i++){
-        mini = min( mini, minpath(grid, n-1, i,dp));
+    freopen("input.txt","r",stdin);
+    freopen("output.txt","w",stdout);
+    int t;
+    cin>>t;
+    while(t--){
+        int n;
+        cin>>n;
+        vector<vector<int>> grid(n);
+        for(int i=0; i<n; i++){
+            vector<int> row(i+1);
+            for(int j=0; j<=i; j++){
+                cin>>row.at(j);
+            }
+            grid.at(i) = row;
+        }
+        int mini=INT_MAX;
+        for(int i=0; i<n; i++){
+            mini = min(min_path_tri(n-1,i,grid), mini);
+        }
+        cout<<mini<<endl;
+        mini = INT_MAX;
+        vector<vector<int>> dp(n,vector<int>(n,-1));
+        for(int i=0 ;i<n; i++){
+            mini = min(min_path_tri(n-1,i,grid,dp), mini);
+        }
+        cout<<mini<<endl;
+        cout<<min_path_tri_tab(n,grid)<<endl;
+        cout<<min_path_tri_space(n,grid)<<endl;
     }
-    cout<<mini<<endl;
-    cout<<minpath(grid)<<endl;
-    cout<<minpath2(grid)<<endl;
-    return 0;
 }
+
+/*
+
+4
+1
+2 3
+3 6 7
+8 9 6 10
+*/
+
+// 14

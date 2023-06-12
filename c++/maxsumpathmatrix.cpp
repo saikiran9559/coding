@@ -1,113 +1,90 @@
 #include<bits/stdc++.h>
 using namespace std;
-// max sum path 
-// start point is any cell from the first row
-// end point is any cell from the last row
-
-void printvector(vector<int> &v){
-    cout<<"\t{";
-    for(auto i:v)cout<<i<<",";
-    cout<<"},"<<endl;
-}
-void print2D(vector<vector<int>> &v){
-    
-    cout<<"{";
-    for(auto i:v) printvector(i);
-    cout<<"}"<<endl;
-
-}
 
 //recursion
-int maxsum(vector<vector<int>> &mat, int n, int m, int r){
-    if(m>r or m<0) return INT_MIN;
-    if(n==0) return mat.at(n).at(m);
-    int maxi = mat.at(n).at(m) + maxsum(mat,n-1,m-1,r);
-    maxi = max( maxi, mat.at(n).at(m) + maxsum(mat,n-1,m, r) );
-    maxi = max( maxi, mat.at(n).at(m) + maxsum(mat,n-1,m+1,r) );
-    return maxi;
+int min_path(int n, int m, vector<vector<int>> &grid){
+    if(n==0 and m==0) return grid.at(n).at(m);
+    if(n<0 or m<0) return INT_MAX;
+    return grid.at(n).at(m) + min(min_path(n-1,m,grid), min_path(n,m-1,grid));
 }
 
-//recursion with memorization
-int maxsum(vector<vector<int>> &mat, int n, int m, int r, vector<vector<int>> &dp){
-    if(m>r or m<0) return INT_MIN;
-
-    if(dp.at(n).at(m)!= INT_MIN) return dp.at(n).at(m);
-
-    if(n==0) return dp.at(n).at(m)= mat.at(n).at(m);
-
-    int maxi = mat.at(n).at(m) + maxsum(mat,n-1,m-1,r,dp);
-    maxi = max( maxi, mat.at(n).at(m) + maxsum(mat,n-1,m, r,dp) );
-    maxi = max( maxi, mat.at(n).at(m) + maxsum(mat,n-1,m+1,r,dp) );
-
-    return dp.at(n).at(m) =  maxi;
+//memorization
+int min_path(int n, int m, vector<vector<int>> &grid, vector<vector<int>> &dp){
+    if(n==0 and m==0) return grid.at(n).at(m);
+    if(n<0 or m<0) return INT_MAX;
+    if(dp.at(n).at(m) != -1) return dp.at(n).at(m);
+    return dp.at(n).at(m) =  grid.at(n).at(m) + min(min_path(n-1,m,grid,dp), min_path(n,m-1,grid,dp));
 }
 
 //tabulation
-
-int maxsum(vector<vector<int>> &mat){
-    int n = mat.size();
-    int m = mat.at(0).size();
-    vector<vector<int>> dp(n,vector<int>(m,INT_MIN));
-    dp.at(0) = mat.at(0);
-    int maxi=INT_MIN;
-    for(int i =1; i<n; i++){
-        dp.at(i).at(0) = mat.at(i).at(0) + max( dp.at(i-1).at(0) , dp.at(i-1).at(1) );
-        for(int j=1; j<m-1; j++){
-            int temp = dp.at(i-1).at(j-1);
-            temp = max(temp, dp.at(i-1).at(j));
-            temp = max(temp, dp.at(i-1).at(j+1));
-            temp += mat.at(i).at(j);
-            dp.at(i).at(j) = temp;
+int min_path_tab(int n, int m, vector<vector<int>> &grid){
+    vector<vector<int>> dp(n,vector<int>(m,-1));
+    dp.at(0).at(0) = grid.at(0).at(0);
+    for(int i=0; i<n; i++){
+        for(int j=0; j<m; j++){
+            if(i==0 and j==0) continue;
+            int up = INT_MAX;
+            int left = INT_MAX;
+            if(j>0) left = dp.at(i).at(j-1);
+            if(i>0) up = dp.at(i-1).at(j);
+            dp.at(i).at(j) = grid.at(i).at(j) + min(up,left);
         }
-        dp.at(i).at(m-1) = mat.at(i).at(m-1) + max( dp.at(i-1).at(m-1), dp.at(i-1).at(m-2) );
     }
-    print2D(dp);
-    for(int j=0; j<m; j++ ) maxi = max( maxi, dp.at(n-1).at(j));
-    return maxi;
+    return dp.at(n-1).at(m-1);
 }
 
-int maxsum2(vector<vector<int>> &mat){
-    int n = mat.size();
-    int m = mat.at(0).size();
-    vector<int> prev;
-    prev = mat.at(0);
-    int maxi=INT_MIN;
-    for(int i =1; i<n; i++){
-        vector<int> prevtemp;
-        prevtemp.push_back( mat.at(i).at(0) + max( prev.at(0) , prev.at(1) ) );
-        for(int j=1; j<m-1; j++){
-            int temp = prev.at(j-1);
-            temp = max(temp, prev.at(j));
-            temp = max(temp, prev.at(j+1));
-            temp += mat.at(i).at(j);
-            prevtemp.push_back(temp);
+//space optimization
+int min_path_space(int n, int m, vector<vector<int>> &grid){
+    vector<int> prev(m);
+    prev.at(0) = grid.at(0).at(0);
+    for(int i=0; i<n; i++){
+        for(int j=0; j<m; j++){
+            if(i==0 and j==0) continue;
+            int up = INT_MAX;
+            int left = INT_MAX;
+            if(j>0) left = prev.at(j-1);
+            if(i>0) up = prev.at(j);
+            prev.at(j) = grid.at(i).at(j) + min(up,left);
         }
-        prevtemp.push_back( mat.at(i).at(m-1) + max( prev.at(m-1), prev.at(m-2) ) );
-        prev = prevtemp;
     }
-    printvector(prev);
-    for(int j=0; j<m; j++ ) maxi = max( maxi, prev.at(j));
-    return maxi;
-}
+    return prev.at(m-1);
 
+}
 
 int main(){
-    vector<vector<int>> mat{
-        {1,2,10,4},
-        {100,3,2,1},
-        {1,1,20,2},
-        {1,2,2,1},
-    };
-    int n = mat.size();
-    int m = mat.at(0).size();
-    int maxi = INT_MIN;
-    print2D(mat);
-    vector<vector<int>> dp(n,vector<int>(m,INT_MIN));
-    for(int i=m-1; i>=0; i--){
-        maxi = max( maxi, maxsum(mat,n-1,i,m-1,dp));
+    freopen("input.txt","r",stdin);
+    freopen("output.txt","w",stdout);
+    int t;
+    cin>>t;
+    while(t--){
+
+        int n, m;
+        cin>>n>>m;
+        vector<vector<int>> grid(n);
+        for(int i=0; i<n; i++){
+            vector<int> row(m);
+            for(int j=0; j<m; j++){
+                cin>>row.at(j);
+            }
+            grid.at(i) = row;
+        }
+
+        cout<<min_path(n-1,m-1,grid)<<endl;
+        vector<vector<int>> dp(n,vector<int>(m,-1));
+        cout<<min_path(n-1,m-1,grid,dp)<<endl;
+        cout<<min_path_tab(n,m,grid)<<endl;
+        cout<<min_path_space(n,m,grid)<<endl;
+
     }
-    print2D(dp);
-    cout<<maxi<<endl;
-    cout<<maxsum(mat)<<endl;
-    cout<<maxsum2(mat)<<endl;
 }
+/*
+2
+2 2
+5 6
+1 2
+3 3
+1 2 3
+4 5 4
+7 5 9
+
+*/

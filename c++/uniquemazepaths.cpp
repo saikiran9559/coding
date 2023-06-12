@@ -1,105 +1,98 @@
 #include<bits/stdc++.h>
 using namespace std;
-// recursion
-int fun(int n, int m, vector<vector<int>> &mat){
-    if(m<0 or n<0 or mat.at(n).at(m)==-1) return 0;
-    if(m==0 and n==0) return 1;
-    return fun(n-1,m,mat) + fun(n,m-1, mat);
+
+//recursion
+int unique_maze_paths(int n, int m, vector<vector<int>> &grid){
+    if(n==0 and m==0) return 1;
+    if(m<0 || n<0 || grid.at(n).at(m)==-1) return 0;
+    return unique_maze_paths(n-1,m,grid) + unique_maze_paths(n,m-1,grid);
 }
 
-
-int mod = (int)(1e9 + 7);
-
-// recursion with memorisation
-int fun(int n, int m, vector<vector<int>> &mat, vector<vector<int>> &dp){
-    if(m<0 or n<0 or mat.at(n).at(m) == -1) return 0;
+//memorization
+int unique_maze_paths(int n, int m , vector<vector<int>> &grid, vector<vector<int>> &dp){
     if(n==0 and m==0) return 1;
+    if(m<0 || n<0 || grid.at(n).at(m)==-1 ) return 0;
     if(dp.at(n).at(m) != -1) return dp.at(n).at(m);
-    return  dp.at(n).at(m) = (fun(n-1,m, mat,dp) + fun(n,m-1,mat,dp)) % mod;
+    return dp.at(n).at(m) = unique_maze_paths(n-1,m,grid,dp) + unique_maze_paths(n,m-1,grid,dp);
 }
 
 //tabulation
-int fun2(int n, int m, vector<vector<int>> &mat){
-    vector<vector<int>> dp(n,vector<int>(m,0));
-    dp.at(0).at(0)=1;
-    for(int i=1; i<m; i++){
-        if(mat.at(0).at(i) == -1){
-            break;
-        }else{
-            dp.at(0).at(i) = 1;
-        }
-    }
-    for(int i=1; i<n; i++){
-        if(mat.at(i).at(0) == -1){
-            dp.at(i).at(0) = 0;
-        }else{
-            dp.at(i).at(0) = dp.at(i-1).at(0);
-        }
-        for(int j=1; j<m; j++){
-            if(mat.at(i).at(j) == -1){
+int unique_maze_paths_tab(int n, int m, vector<vector<int>> &grid){
+    vector<vector<int>> dp(n,vector<int>(m,-1));
+    dp.at(0).at(0) = 1;
+    for(int i=0; i<n; i++){
+        for(int j=0; j<m; j++){
+            if(i==0 and j==0) continue;
+            if(grid.at(i).at(j) == -1){
                 dp.at(i).at(j) = 0;
                 continue;
             }
-            dp.at(i).at(j) = dp.at(i-1).at(j) +  dp.at(i).at(j-1); 
+            int c=0;
+            if(j>0) c+=dp.at(i).at(j-1);
+            if(i>0) c+=dp.at(i-1).at(j);
+            dp.at(i).at(j) = c;
         }
     }
     return dp.at(n-1).at(m-1);
 }
 
-// without tabulation
-int fun3(int n, int m, vector<vector<int>> &mat){
-    vector<int> prev(m,0);
-    prev.at(0)=1;
-    for(int i=1; i<m; i++){
-        if(mat.at(0).at(i)==-1) break;
-        prev.at(i) = 1;
-    }
-    for(int i=1; i<n; i++){
-        vector<int> temp(m,0);
-        if(mat.at(i).at(0) != -1) temp.at(0) = prev.at(0);
-        for(int j=1; j<m; j++){
-            if(mat.at(i).at(j) == -1){
-                temp.at(j) = 0;
+int unique_maze_paths_space(int n, int m, vector<vector<int>> &grid){
+    vector<int> prev(m);
+    prev.at(0) = 1;
+    for(int i=0; i<n; i++){
+        for(int j=0; j<m; j++){
+            if(i==0 and j==0) continue;
+            if(grid.at(i).at(j) == -1){
+                prev.at(j) = 0;
                 continue;
             }
-            temp.at(j) = (prev.at(j) + temp.at(j-1)) % mod;
+            int c=0;
+            if(j>0) c+= prev.at(j-1);
+            if(i>0) c+= prev.at(j);
+            prev.at(j) = c;
         }
-        prev = temp;
     }
     return prev.at(m-1);
 }
 
 
-
-int mazeObstacles(int n, int m, vector< vector< int> > &mat) {
-    // Write your code here
-    vector<vector<int>> dp(n,vector<int>(m,-1));
-    return fun2(n,m,mat);
-}
-
 int main(){
+    freopen("input.txt","r",stdin);
+    freopen("output.txt","w",stdout);
+    int t;
+    cin>>t;
+    while(t--){
 
-    /*
-    vector<vector<int>> mat{
-        {0,0,0,0,0,0,0,-1,-1,-1,-1,0,0,-1 },
-        {0,0,0,-1,0,0,0,0,0,0,0,0,-1,-1},
-        {0,0,0,0,0,0,0,-1,0,0,0,0,0,0 },
-        {0,0,0,0,0,-1,0,0,0,0,-1,-1,0,0 },
-    };
-    */
+        int n, m;
+        cin>>n>>m;
+        vector<vector<int>> grid(n);
+        for(int i=0; i<n; i++){
+            vector<int> row(m);
+            for(int j=0; j<m; j++){
+                cin>>row.at(j);
+            }
+            grid.at(i) = row;
+        }
 
-    vector<vector<int>> mat{
-        {0,0,0,0},
-        {-1,0,0,0},
-        {0,0,0,-1},
-        {0,-1,0,0},
-    };
-    int n =mat.size();
-    int m = mat.at(0).size();
+        cout<<unique_maze_paths(n-1,m-1,grid)<<endl;
+        vector<vector<int>> dp(n,vector<int>(m,-1));
+        cout<<unique_maze_paths(n-1,m-1,grid,dp)<<endl;
+        cout<<unique_maze_paths_tab(n,m,grid)<<endl;
+        cout<<unique_maze_paths_space(n,m,grid)<<endl;
+    }
 
-    cout<<fun2(n,m,mat)<<endl;
-    cout<<fun3(n,m,mat)<<endl;
+/*
+2
+3 3
+0 0 -1
+0 -1 0
+0 0 0
+4 4
+0 0 0 0
+0 0 -1 0
+-1 0 -1 0
+0 0 0 0
 
-    return 0;
-    
+
+*/
 }

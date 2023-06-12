@@ -1,70 +1,51 @@
-#include <bits/stdc++.h> 
+#include<bits/stdc++.h>
 using namespace std;
-void printvector(vector<int> &v){
-    cout<<"{";
-    for(auto i:v)cout<<i<<",";
-    cout<<"},"<<endl;
-}
-int fun(int m, int n){
-    if(m==0 and n==0) return 1;
-    if(m<0 or n<0) return 0;
-    return fun(m-1, n) + fun(m, n-1);
-}
-int fun(int m, int n,vector<vector<int>> &dp){
-    if(m==0 and n==0) return 1;
-    if(m<0 or n<0) return 0;
-    if(dp.at(m).at(n)!=-1) return dp.at(m).at(n);
-    return dp.at(m).at(n) = fun(m-1, n) + fun(m, n-1);
+
+//recursion
+int unique_paths(int n, int m){
+    if(n==0) return 1;
+    if(m<0) return 0;
+    return unique_paths(n-1, m)+ unique_paths(n,m-1);
 }
 
-/*
-int minenergy(vector<int> &v, int index, int k){
-    if(index==0) return 0;
-    int mini=INT_MAX;
-    for(int i=1; i<=k; i++){
-        if(i<=index)
-            mini = min(mini, minenergy(v, index-i, k) + abs(v.at(index) - v.at(index-i)));
-        else
-            break;
-    }
-    return mini;
-}
+//memorization
+int unique_paths(int n, int m, vector<vector<int>> &dp){
+    if(n==0) return 1;
+    if(m<0) return 0;
+    if(dp.at(n).at(m) != -1) return dp.at(n).at(m);
+    return dp.at(n).at(m) = unique_paths(n-1,m,dp) + unique_paths(n,m-1,dp);
 }
 
-int fun(int m, int n, vector<vector<int>> &dp){
-    if(m==0 or n==0) return 1;
-    if(dp.at(m).at(n) != -1) return dp.at(m).at(n);
-    dp.at(m).at(n) = fun(m-1, n, dp) + fun(m,n-1,dp);
-    return dp.at(m).at(n);
-}
-
-int uniquePaths(int m, int n) {
-	// Write your code here.
-    vector<vector<int>> dp(m,vector<int>(n,1));
-    for(int i=1; i<m; i++){
-        for(int j=1; j<n; j++){
-            dp.at(i).at(j) =dp.at(i-1).at(j) + dp.at(i).at(j-1);
+//tabulation
+int unique_paths_tab(int n, int m){
+    vector<vector<int>> dp(n,vector<int>(m,-1));
+    dp.at(0) = vector<int>(m,1);
+    for(int i=1; i<n; i++){
+        dp.at(i).at(0) = dp.at(i-1).at(0);
+        for(int j=1; j<m; j++){
+            dp.at(i).at(j) = dp.at(i-1).at(j) +dp.at(i).at(j-1);
         }
     }
-    return dp.at(m-1).at(n-1);
-    //return fun(m-1,n-1,dp);
+    return dp.at(n-1).at(m-1);
 }
 
-*/
-int uniquePaths(int m, int n){
-    vector<int> prev(n,1);
-    printvector(prev);
-    for(int i=1; i<m; i++){
-        for(int j=1; j<n; j++) prev.at(j) += prev.at(j-1);
+//space optimization
+int unique_paths_space(int n, int m){
+    vector<int> prev(m,1);
+    for(int i=1; i<n; i++){
+        for(int j=1; j<m; j++) prev.at(j) += prev.at(j-1);
     }
-    return prev.at(n-1);
+    return prev.at(m-1);
 }
+
 int main(){
-    //vector<vector<int>> dp(3,vector<int> (2,-1));
-    //cout<<fun(3-1,2-1, dp)<<endl;
-    int m;
-    int n;
-    cin>>m>>n;
-    cout<<uniquePaths(m,n)<<endl;
-    return 0;
+    freopen("input.txt","r",stdin);
+    freopen("output.txt","w",stdout);
+    int n, m; //5 6
+    cin>>n>>m;
+    cout<<unique_paths(n-1, m-1)<<endl; //126
+    vector<vector<int>> dp(n,vector<int>(m,-1));
+    cout<<unique_paths(n-1, m-1, dp)<<endl;
+    cout<<unique_paths_tab(n,m)<<endl;
+    cout<<unique_paths_space(n,m)<<endl;
 }

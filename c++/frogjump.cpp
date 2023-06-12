@@ -1,100 +1,57 @@
 #include<bits/stdc++.h>
-#include<iostream>
-#include<vector>
-#include<cstdlib>
-#include<algorithm>
 using namespace std;
 
-void printvector(vector<int> &v){
-    cout<<"{";
-    for(auto i:v) cout<<i<<",";
-    cout<<"}"<<endl;
+int abs(int a, int b){
+    if(a<b)return b-a;
+    return a-b;
 }
 
-//recursion
-
-int min_energy(vector<int> &values, int n){
-    if(n==0) return 0;
-    int two = INT_MAX;
-    if(n>1) two = min_energy(values, n-2) + abs(values.at(n) - values.at(n-2));
-    return min(min_energy(values,n-1) + abs(values.at(n) - values.at(n-1)), two );
-}
-
-int minenergy(int index, vector<int> &v){
-    if(index ==0){
+//recursive
+int min_energy(int n, vector<int> &v){
+    if(n==0) 
         return 0;
-    }
-    int left = minenergy(index-1,v)+abs(v.at(index) - v.at(index-1));
-    
-    if(index>1){
-        int right = minenergy(index-2,v)+abs(v.at(index)-v.at(index-2));
-        return min(left, right);
-    }
+    int left = min_energy(n-1,v) + abs(v.at(n), v.at(n-1));
+    if(n>1)
+        return min(left, min_energy(n-2,v) + abs(v.at(n), v.at(n-2)));
     return left;
 }
 
 //memorization
-int minenergy(int index, vector<int> &v,vector<int> &dp){
-    if(dp.at(index)!=-1){
-        return dp.at(index);
-    }
-    int left = minenergy(index-1,v,dp)+abs(v.at(index) - v.at(index-1));
-    
-    if(index>1){
-        int right = minenergy(index-2,v,dp)+abs(v.at(index)-v.at(index-2));
-        dp.at(index) = min(left,right);
-        return min(left, right);
-    }
-    dp.at(index)=left;
-    return left;
-}
-
-int min_energy(vector<int> &values, int n , vector<int> &dp){
+int min_energy(int n, vector<int> &v, vector<int> &dp){
     if(n==0) return 0;
-    else if(dp.at(n)!=-1)  return dp.at(n);
-    int two = INT_MAX;
-    if(n>1) two = min_energy(values, n-2, dp) + abs(values.at(n) - values.at(n-2));
-    return dp.at(n) =  min(min_energy(values,n-1, dp) + abs(values.at(n) - values.at(n-1)), two );
+    if(dp.at(n) != -1) return dp.at(n);
+    int left = min_energy(n-1,v, dp) + abs(v.at(n), v.at(n-1));
+    if(n>1)
+        return dp.at(n) =  min(left, min_energy(n-2,v,dp) + abs(v.at(n), v.at(n-2)));
+    return dp.at(n) = left;
 }
-
 
 //tabulation
-int minenergy(vector<int> &v){
-    int n = v.size();
-    vector<int> dp(n,0);
-    for(int i=1; i<n; i++){
-        int fs = dp.at(i-1)+ abs(v.at(i-1) - v.at(i));
-        int ss = INT_MAX;
-        if(i>1) ss = dp.at(i-2)+ abs(v.at(i)-v.at(i-2));
-        dp.at(i)=min(fs,ss);
-    }
+int min_energy_tab(int n, vector<int> &v){
+    vector<int> dp(n, -1);
+    dp.at(0) = 0;
+    dp.at(1) = abs(v.at(1), v.at(0));
+    for(int i=2; i<n; i++)
+        dp.at(i) = min( 
+            dp.at(i-1)+abs(v.at(i), v.at(i-1)), 
+            dp.at(i-2) + abs(v.at(i), v.at(i-2)) 
+        );
+    
     return dp.at(n-1);
 }
 
-int min_energy_table(vector<int> &values, int n){ //n actual length
-    vector<int> dp(n,-1);
-    dp.at(0)=0;
-    dp.at(1)= abs(values.at(0) - values.at(1));
-    for(int i=2; i<n; i++) dp.at(i) = min(dp.at(i-1)+ abs(values.at(i) - values.at(i-1)), dp.at(i-2) + abs(values.at(i) - values.at(i-2)));
-    return dp.at(n-1);
-}
+//space optimization
 
-// it is possible only for i-1 and i-2 kind of problems 
-int minenergy2(vector<int> &v){
-    int n = v.size();
-    int prev = 0;
+int min_energy_space(int n, vector<int> &v){
     int prev2 = 0;
-    for(int i=1; i<n; i++){
-        int fs = prev+ abs(v.at(i-1) - v.at(i));
-        int ss = INT_MAX;
-        if(i>1) ss = prev2 + abs(v.at(i)-v.at(i-2));
-        int curi =min(fs,ss);
+    int prev = abs(v.at(1), v.at(0));
+    for(int i=2; i<n; i++){
+        int cur = min(prev+abs(v.at(i), v.at(i-1)), prev2+abs(v.at(i), v.at(i-2)));
         prev2 = prev;
-        prev = curi;
+        prev = cur;
     }
     return prev;
 }
-
 
 int main(){
     freopen("input.txt","r",stdin);
@@ -102,13 +59,13 @@ int main(){
     int n;
     cin>>n;
     vector<int> v(n);
+    vector<int> dp(n, -1);
     for(int i=0; i<n; i++){
         cin>>v.at(i);
     }
-    vector<int> dp(n,-1);
-    dp.at(0)=0;
-    cout<<minenergy(n-1,v,dp)<<endl;
-    cout<<minenergy(n-1,v)<<endl;
-    cout<<minenergy(v)<<endl;
-    cout<<minenergy2(v)<<endl;
+    cout<<min_energy(n-1,v)<<endl;
+    cout<<min_energy(n-1, v, dp)<<endl;
+    cout<<min_energy_tab(n, v)<<endl;
+    cout<<min_energy_space(n,v)<<endl;
+
 }

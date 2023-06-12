@@ -52,6 +52,9 @@ int main()
     for(auto i:v) cout<<i<<" ";
 */
     //cout<<climbStairs(2)<<endl;
+
+    // freopen("input.txt","r",stdin);
+    // freopen("output.txt","w",stdout);
     map<int,int> mymap;
     mymap.insert({30,2});
     mymap.insert({25,4});
